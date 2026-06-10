@@ -32,8 +32,8 @@ export default createConfig({
     AttestorRegistry: {
       chain: "baseSepolia",
       abi: AttestorRegistryAbi,
-      address: "0xC13038dD05B10061A3f1cb8e76B49A8527918739",
-      startBlock: 42_670_000,
+      address: "0x60e77cF48feC08F07c0C55939E71c169C65C3E18",
+      startBlock: 42673873,
     },
   },
 });
