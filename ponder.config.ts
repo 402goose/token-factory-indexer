@@ -26,14 +26,14 @@ export default createConfig({
     Decoder: {
       chain: "baseSepolia",
       abi: DecoderAbi,
-      address: "0x1dd180A08f90EBcE291733fa8cbaFBf0eCDcd4b6",
-      startBlock: 42_440_000,
+      address: "0xCB9E8f3877b5797386fF28bF6d584B6a1dfaD50D",
+      startBlock: 42_670_000,
     },
     AttestorRegistry: {
       chain: "baseSepolia",
       abi: AttestorRegistryAbi,
-      address: "0xd00a4c88f2e5ad265be1497ab69491e00e7c2b1a",
-      startBlock: 42_640_000,
+      address: "0xC13038dD05B10061A3f1cb8e76B49A8527918739",
+      startBlock: 42_670_000,
     },
   },
 });
