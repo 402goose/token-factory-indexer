@@ -1,0 +1,36 @@
+# token-factory-indexer — Ponder on Fly.io.
+#
+# SQLite-backed for now; promote to Postgres + Fly PG if/when read load needs it.
+# RPC defaults to public Base Sepolia — set PONDER_RPC_URL_84532 to a paid
+# endpoint via `fly secrets set` before hitting any meaningful query rate.
+
+app = "tf-indexer"
+primary_region = "iad"
+
+[build]
+  dockerfile = "Dockerfile"
+
+[env]
+  NODE_ENV = "production"
+  PORT = "8080"
+
+[[mounts]]
+  source = "indexer_data"
+  destination = "/data"
+
+[http_service]
+  internal_port = 8080
+  force_https = true
+  auto_stop_machines = "stop"
+  auto_start_machines = true
+  min_machines_running = 1
+
+  [http_service.concurrency]
+    type = "requests"
+    soft_limit = 50
+    hard_limit = 100
+
+[[vm]]
+  cpu_kind = "shared"
+  cpus = 1
+  memory = "512mb"
