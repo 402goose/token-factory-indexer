@@ -13,6 +13,9 @@ primary_region = "iad"
 [env]
   NODE_ENV = "production"
   PORT = "8080"
+  # Schema namespace per stack generation — Ponder refuses to reuse a schema
+  # across different builds. tf = old (pre-cap) stack; tf2 = v0.3 capped stack.
+  DATABASE_SCHEMA = "tf2"
 
 [[mounts]]
   source = "indexer_data"
