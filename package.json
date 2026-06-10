@@ -1,0 +1,23 @@
+{
+  "name": "token-factory-indexer",
+  "version": "0.1.0",
+  "description": "Ponder indexer for the token-factory protocol — Decoder + AttestorRegistry events",
+  "type": "module",
+  "scripts": {
+    "dev": "ponder dev",
+    "start": "ponder start",
+    "serve": "ponder serve",
+    "codegen": "ponder codegen",
+    "typecheck": "tsc --noEmit"
+  },
+  "dependencies": {
+    "hono": "^4.12.25",
+    "ponder": "^0.16.6",
+    "viem": "^2.52.2"
+  },
+  "devDependencies": {
+    "@types/node": "^25.9.2",
+    "tsx": "^4.22.4",
+    "typescript": "^5.9.3"
+  }
+}

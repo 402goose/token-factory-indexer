@@ -1,0 +1,612 @@
+"""
+The `JSON` scalar type represents JSON values as specified by [ECMA-404](http://www.ecma-international.org/publications/files/ECMA-ST/ECMA-404.pdf).
+"""
+scalar JSON
+
+scalar BigInt
+
+type PageInfo {
+  hasNextPage: Boolean!
+  hasPreviousPage: Boolean!
+  startCursor: String
+  endCursor: String
+}
+
+type ViewPageInfo {
+  hasNextPage: Boolean!
+  hasPreviousPage: Boolean!
+}
+
+type Meta {
+  status: JSON
+}
+
+type Query {
+  decoded(id: String!): decoded
+  decodeds(where: decodedFilter, orderBy: String, orderDirection: String, before: String, after: String, limit: Int, offset: Int): decodedPage!
+  deposited(id: String!): deposited
+  depositeds(where: depositedFilter, orderBy: String, orderDirection: String, before: String, after: String, limit: Int, offset: Int): depositedPage!
+  withdrawn(id: String!): withdrawn
+  withdrawns(where: withdrawnFilter, orderBy: String, orderDirection: String, before: String, after: String, limit: Int, offset: Int): withdrawnPage!
+  slashed(id: String!): slashed
+  slasheds(where: slashedFilter, orderBy: String, orderDirection: String, before: String, after: String, limit: Int, offset: Int): slashedPage!
+  slashedByProof(id: String!): slashedByProof
+  slashedByProofs(where: slashedByProofFilter, orderBy: String, orderDirection: String, before: String, after: String, limit: Int, offset: Int): slashedByProofPage!
+  rosterChange(id: String!): rosterChange
+  rosterChanges(where: rosterChangeFilter, orderBy: String, orderDirection: String, before: String, after: String, limit: Int, offset: Int): rosterChangePage!
+  _meta: Meta
+}
+
+type decoded {
+  id: String!
+  attestationUid: String!
+  recipient: String!
+  usdcCentsAttested: BigInt!
+  tokenMinted: BigInt!
+  feeCentsRouted: BigInt!
+  blockNumber: BigInt!
+  timestamp: Int!
+  txHash: String!
+}
+
+type decodedPage {
+  items: [decoded!]!
+  pageInfo: PageInfo!
+  totalCount: Int!
+}
+
+input decodedFilter {
+  AND: [decodedFilter]
+  OR: [decodedFilter]
+  id: String
+  id_not: String
+  id_in: [String]
+  id_not_in: [String]
+  id_contains: String
+  id_not_contains: String
+  id_starts_with: String
+  id_ends_with: String
+  id_not_starts_with: String
+  id_not_ends_with: String
+  id_contains_nocase: String
+  id_not_contains_nocase: String
+  id_starts_with_nocase: String
+  id_ends_with_nocase: String
+  id_not_starts_with_nocase: String
+  id_not_ends_with_nocase: String
+  attestationUid: String
+  attestationUid_not: String
+  attestationUid_in: [String]
+  attestationUid_not_in: [String]
+  attestationUid_contains: String
+  attestationUid_not_contains: String
+  attestationUid_starts_with: String
+  attestationUid_ends_with: String
+  attestationUid_not_starts_with: String
+  attestationUid_not_ends_with: String
+  recipient: String
+  recipient_not: String
+  recipient_in: [String]
+  recipient_not_in: [String]
+  recipient_contains: String
+  recipient_not_contains: String
+  recipient_starts_with: String
+  recipient_ends_with: String
+  recipient_not_starts_with: String
+  recipient_not_ends_with: String
+  usdcCentsAttested: BigInt
+  usdcCentsAttested_not: BigInt
+  usdcCentsAttested_in: [BigInt]
+  usdcCentsAttested_not_in: [BigInt]
+  usdcCentsAttested_gt: BigInt
+  usdcCentsAttested_lt: BigInt
+  usdcCentsAttested_gte: BigInt
+  usdcCentsAttested_lte: BigInt
+  tokenMinted: BigInt
+  tokenMinted_not: BigInt
+  tokenMinted_in: [BigInt]
+  tokenMinted_not_in: [BigInt]
+  tokenMinted_gt: BigInt
+  tokenMinted_lt: BigInt
+  tokenMinted_gte: BigInt
+  tokenMinted_lte: BigInt
+  feeCentsRouted: BigInt
+  feeCentsRouted_not: BigInt
+  feeCentsRouted_in: [BigInt]
+  feeCentsRouted_not_in: [BigInt]
+  feeCentsRouted_gt: BigInt
+  feeCentsRouted_lt: BigInt
+  feeCentsRouted_gte: BigInt
+  feeCentsRouted_lte: BigInt
+  blockNumber: BigInt
+  blockNumber_not: BigInt
+  blockNumber_in: [BigInt]
+  blockNumber_not_in: [BigInt]
+  blockNumber_gt: BigInt
+  blockNumber_lt: BigInt
+  blockNumber_gte: BigInt
+  blockNumber_lte: BigInt
+  timestamp: Int
+  timestamp_not: Int
+  timestamp_in: [Int]
+  timestamp_not_in: [Int]
+  timestamp_gt: Int
+  timestamp_lt: Int
+  timestamp_gte: Int
+  timestamp_lte: Int
+  txHash: String
+  txHash_not: String
+  txHash_in: [String]
+  txHash_not_in: [String]
+  txHash_contains: String
+  txHash_not_contains: String
+  txHash_starts_with: String
+  txHash_ends_with: String
+  txHash_not_starts_with: String
+  txHash_not_ends_with: String
+}
+
+type deposited {
+  id: String!
+  attestor: String!
+  asset: String!
+  amount: BigInt!
+  sharesMinted: BigInt!
+  navAddedUsd18: BigInt!
+  blockNumber: BigInt!
+  timestamp: Int!
+  txHash: String!
+}
+
+type depositedPage {
+  items: [deposited!]!
+  pageInfo: PageInfo!
+  totalCount: Int!
+}
+
+input depositedFilter {
+  AND: [depositedFilter]
+  OR: [depositedFilter]
+  id: String
+  id_not: String
+  id_in: [String]
+  id_not_in: [String]
+  id_contains: String
+  id_not_contains: String
+  id_starts_with: String
+  id_ends_with: String
+  id_not_starts_with: String
+  id_not_ends_with: String
+  id_contains_nocase: String
+  id_not_contains_nocase: String
+  id_starts_with_nocase: String
+  id_ends_with_nocase: String
+  id_not_starts_with_nocase: String
+  id_not_ends_with_nocase: String
+  attestor: String
+  attestor_not: String
+  attestor_in: [String]
+  attestor_not_in: [String]
+  attestor_contains: String
+  attestor_not_contains: String
+  attestor_starts_with: String
+  attestor_ends_with: String
+  attestor_not_starts_with: String
+  attestor_not_ends_with: String
+  asset: String
+  asset_not: String
+  asset_in: [String]
+  asset_not_in: [String]
+  asset_contains: String
+  asset_not_contains: String
+  asset_starts_with: String
+  asset_ends_with: String
+  asset_not_starts_with: String
+  asset_not_ends_with: String
+  amount: BigInt
+  amount_not: BigInt
+  amount_in: [BigInt]
+  amount_not_in: [BigInt]
+  amount_gt: BigInt
+  amount_lt: BigInt
+  amount_gte: BigInt
+  amount_lte: BigInt
+  sharesMinted: BigInt
+  sharesMinted_not: BigInt
+  sharesMinted_in: [BigInt]
+  sharesMinted_not_in: [BigInt]
+  sharesMinted_gt: BigInt
+  sharesMinted_lt: BigInt
+  sharesMinted_gte: BigInt
+  sharesMinted_lte: BigInt
+  navAddedUsd18: BigInt
+  navAddedUsd18_not: BigInt
+  navAddedUsd18_in: [BigInt]
+  navAddedUsd18_not_in: [BigInt]
+  navAddedUsd18_gt: BigInt
+  navAddedUsd18_lt: BigInt
+  navAddedUsd18_gte: BigInt
+  navAddedUsd18_lte: BigInt
+  blockNumber: BigInt
+  blockNumber_not: BigInt
+  blockNumber_in: [BigInt]
+  blockNumber_not_in: [BigInt]
+  blockNumber_gt: BigInt
+  blockNumber_lt: BigInt
+  blockNumber_gte: BigInt
+  blockNumber_lte: BigInt
+  timestamp: Int
+  timestamp_not: Int
+  timestamp_in: [Int]
+  timestamp_not_in: [Int]
+  timestamp_gt: Int
+  timestamp_lt: Int
+  timestamp_gte: Int
+  timestamp_lte: Int
+  txHash: String
+  txHash_not: String
+  txHash_in: [String]
+  txHash_not_in: [String]
+  txHash_contains: String
+  txHash_not_contains: String
+  txHash_starts_with: String
+  txHash_ends_with: String
+  txHash_not_starts_with: String
+  txHash_not_ends_with: String
+}
+
+type withdrawn {
+  id: String!
+  attestor: String!
+  sharesBurned: BigInt!
+  blockNumber: BigInt!
+  timestamp: Int!
+  txHash: String!
+}
+
+type withdrawnPage {
+  items: [withdrawn!]!
+  pageInfo: PageInfo!
+  totalCount: Int!
+}
+
+input withdrawnFilter {
+  AND: [withdrawnFilter]
+  OR: [withdrawnFilter]
+  id: String
+  id_not: String
+  id_in: [String]
+  id_not_in: [String]
+  id_contains: String
+  id_not_contains: String
+  id_starts_with: String
+  id_ends_with: String
+  id_not_starts_with: String
+  id_not_ends_with: String
+  id_contains_nocase: String
+  id_not_contains_nocase: String
+  id_starts_with_nocase: String
+  id_ends_with_nocase: String
+  id_not_starts_with_nocase: String
+  id_not_ends_with_nocase: String
+  attestor: String
+  attestor_not: String
+  attestor_in: [String]
+  attestor_not_in: [String]
+  attestor_contains: String
+  attestor_not_contains: String
+  attestor_starts_with: String
+  attestor_ends_with: String
+  attestor_not_starts_with: String
+  attestor_not_ends_with: String
+  sharesBurned: BigInt
+  sharesBurned_not: BigInt
+  sharesBurned_in: [BigInt]
+  sharesBurned_not_in: [BigInt]
+  sharesBurned_gt: BigInt
+  sharesBurned_lt: BigInt
+  sharesBurned_gte: BigInt
+  sharesBurned_lte: BigInt
+  blockNumber: BigInt
+  blockNumber_not: BigInt
+  blockNumber_in: [BigInt]
+  blockNumber_not_in: [BigInt]
+  blockNumber_gt: BigInt
+  blockNumber_lt: BigInt
+  blockNumber_gte: BigInt
+  blockNumber_lte: BigInt
+  timestamp: Int
+  timestamp_not: Int
+  timestamp_in: [Int]
+  timestamp_not_in: [Int]
+  timestamp_gt: Int
+  timestamp_lt: Int
+  timestamp_gte: Int
+  timestamp_lte: Int
+  txHash: String
+  txHash_not: String
+  txHash_in: [String]
+  txHash_not_in: [String]
+  txHash_contains: String
+  txHash_not_contains: String
+  txHash_starts_with: String
+  txHash_ends_with: String
+  txHash_not_starts_with: String
+  txHash_not_ends_with: String
+}
+
+type slashed {
+  id: String!
+  attestor: String!
+  sharesBurned: BigInt!
+  usdValueRoutedTeam: BigInt!
+  blockNumber: BigInt!
+  timestamp: Int!
+  txHash: String!
+}
+
+type slashedPage {
+  items: [slashed!]!
+  pageInfo: PageInfo!
+  totalCount: Int!
+}
+
+input slashedFilter {
+  AND: [slashedFilter]
+  OR: [slashedFilter]
+  id: String
+  id_not: String
+  id_in: [String]
+  id_not_in: [String]
+  id_contains: String
+  id_not_contains: String
+  id_starts_with: String
+  id_ends_with: String
+  id_not_starts_with: String
+  id_not_ends_with: String
+  id_contains_nocase: String
+  id_not_contains_nocase: String
+  id_starts_with_nocase: String
+  id_ends_with_nocase: String
+  id_not_starts_with_nocase: String
+  id_not_ends_with_nocase: String
+  attestor: String
+  attestor_not: String
+  attestor_in: [String]
+  attestor_not_in: [String]
+  attestor_contains: String
+  attestor_not_contains: String
+  attestor_starts_with: String
+  attestor_ends_with: String
+  attestor_not_starts_with: String
+  attestor_not_ends_with: String
+  sharesBurned: BigInt
+  sharesBurned_not: BigInt
+  sharesBurned_in: [BigInt]
+  sharesBurned_not_in: [BigInt]
+  sharesBurned_gt: BigInt
+  sharesBurned_lt: BigInt
+  sharesBurned_gte: BigInt
+  sharesBurned_lte: BigInt
+  usdValueRoutedTeam: BigInt
+  usdValueRoutedTeam_not: BigInt
+  usdValueRoutedTeam_in: [BigInt]
+  usdValueRoutedTeam_not_in: [BigInt]
+  usdValueRoutedTeam_gt: BigInt
+  usdValueRoutedTeam_lt: BigInt
+  usdValueRoutedTeam_gte: BigInt
+  usdValueRoutedTeam_lte: BigInt
+  blockNumber: BigInt
+  blockNumber_not: BigInt
+  blockNumber_in: [BigInt]
+  blockNumber_not_in: [BigInt]
+  blockNumber_gt: BigInt
+  blockNumber_lt: BigInt
+  blockNumber_gte: BigInt
+  blockNumber_lte: BigInt
+  timestamp: Int
+  timestamp_not: Int
+  timestamp_in: [Int]
+  timestamp_not_in: [Int]
+  timestamp_gt: Int
+  timestamp_lt: Int
+  timestamp_gte: Int
+  timestamp_lte: Int
+  txHash: String
+  txHash_not: String
+  txHash_in: [String]
+  txHash_not_in: [String]
+  txHash_contains: String
+  txHash_not_contains: String
+  txHash_starts_with: String
+  txHash_ends_with: String
+  txHash_not_starts_with: String
+  txHash_not_ends_with: String
+}
+
+type slashedByProof {
+  id: String!
+  attestor: String!
+  slasher: String!
+  sharesBurned: BigInt!
+  slashedUsd18: BigInt!
+  reason: String!
+  blockNumber: BigInt!
+  timestamp: Int!
+  txHash: String!
+}
+
+type slashedByProofPage {
+  items: [slashedByProof!]!
+  pageInfo: PageInfo!
+  totalCount: Int!
+}
+
+input slashedByProofFilter {
+  AND: [slashedByProofFilter]
+  OR: [slashedByProofFilter]
+  id: String
+  id_not: String
+  id_in: [String]
+  id_not_in: [String]
+  id_contains: String
+  id_not_contains: String
+  id_starts_with: String
+  id_ends_with: String
+  id_not_starts_with: String
+  id_not_ends_with: String
+  id_contains_nocase: String
+  id_not_contains_nocase: String
+  id_starts_with_nocase: String
+  id_ends_with_nocase: String
+  id_not_starts_with_nocase: String
+  id_not_ends_with_nocase: String
+  attestor: String
+  attestor_not: String
+  attestor_in: [String]
+  attestor_not_in: [String]
+  attestor_contains: String
+  attestor_not_contains: String
+  attestor_starts_with: String
+  attestor_ends_with: String
+  attestor_not_starts_with: String
+  attestor_not_ends_with: String
+  slasher: String
+  slasher_not: String
+  slasher_in: [String]
+  slasher_not_in: [String]
+  slasher_contains: String
+  slasher_not_contains: String
+  slasher_starts_with: String
+  slasher_ends_with: String
+  slasher_not_starts_with: String
+  slasher_not_ends_with: String
+  sharesBurned: BigInt
+  sharesBurned_not: BigInt
+  sharesBurned_in: [BigInt]
+  sharesBurned_not_in: [BigInt]
+  sharesBurned_gt: BigInt
+  sharesBurned_lt: BigInt
+  sharesBurned_gte: BigInt
+  sharesBurned_lte: BigInt
+  slashedUsd18: BigInt
+  slashedUsd18_not: BigInt
+  slashedUsd18_in: [BigInt]
+  slashedUsd18_not_in: [BigInt]
+  slashedUsd18_gt: BigInt
+  slashedUsd18_lt: BigInt
+  slashedUsd18_gte: BigInt
+  slashedUsd18_lte: BigInt
+  reason: String
+  reason_not: String
+  reason_in: [String]
+  reason_not_in: [String]
+  reason_contains: String
+  reason_not_contains: String
+  reason_starts_with: String
+  reason_ends_with: String
+  reason_not_starts_with: String
+  reason_not_ends_with: String
+  blockNumber: BigInt
+  blockNumber_not: BigInt
+  blockNumber_in: [BigInt]
+  blockNumber_not_in: [BigInt]
+  blockNumber_gt: BigInt
+  blockNumber_lt: BigInt
+  blockNumber_gte: BigInt
+  blockNumber_lte: BigInt
+  timestamp: Int
+  timestamp_not: Int
+  timestamp_in: [Int]
+  timestamp_not_in: [Int]
+  timestamp_gt: Int
+  timestamp_lt: Int
+  timestamp_gte: Int
+  timestamp_lte: Int
+  txHash: String
+  txHash_not: String
+  txHash_in: [String]
+  txHash_not_in: [String]
+  txHash_contains: String
+  txHash_not_contains: String
+  txHash_starts_with: String
+  txHash_ends_with: String
+  txHash_not_starts_with: String
+  txHash_not_ends_with: String
+}
+
+type rosterChange {
+  id: String!
+  attestor: String!
+  promoted: Boolean!
+  blockNumber: BigInt!
+  timestamp: Int!
+  txHash: String!
+}
+
+type rosterChangePage {
+  items: [rosterChange!]!
+  pageInfo: PageInfo!
+  totalCount: Int!
+}
+
+input rosterChangeFilter {
+  AND: [rosterChangeFilter]
+  OR: [rosterChangeFilter]
+  id: String
+  id_not: String
+  id_in: [String]
+  id_not_in: [String]
+  id_contains: String
+  id_not_contains: String
+  id_starts_with: String
+  id_ends_with: String
+  id_not_starts_with: String
+  id_not_ends_with: String
+  id_contains_nocase: String
+  id_not_contains_nocase: String
+  id_starts_with_nocase: String
+  id_ends_with_nocase: String
+  id_not_starts_with_nocase: String
+  id_not_ends_with_nocase: String
+  attestor: String
+  attestor_not: String
+  attestor_in: [String]
+  attestor_not_in: [String]
+  attestor_contains: String
+  attestor_not_contains: String
+  attestor_starts_with: String
+  attestor_ends_with: String
+  attestor_not_starts_with: String
+  attestor_not_ends_with: String
+  promoted: Boolean
+  promoted_not: Boolean
+  promoted_in: [Boolean]
+  promoted_not_in: [Boolean]
+  blockNumber: BigInt
+  blockNumber_not: BigInt
+  blockNumber_in: [BigInt]
+  blockNumber_not_in: [BigInt]
+  blockNumber_gt: BigInt
+  blockNumber_lt: BigInt
+  blockNumber_gte: BigInt
+  blockNumber_lte: BigInt
+  timestamp: Int
+  timestamp_not: Int
+  timestamp_in: [Int]
+  timestamp_not_in: [Int]
+  timestamp_gt: Int
+  timestamp_lt: Int
+  timestamp_gte: Int
+  timestamp_lte: Int
+  txHash: String
+  txHash_not: String
+  txHash_in: [String]
+  txHash_not_in: [String]
+  txHash_contains: String
+  txHash_not_contains: String
+  txHash_starts_with: String
+  txHash_ends_with: String
+  txHash_not_starts_with: String
+  txHash_not_ends_with: String
+}

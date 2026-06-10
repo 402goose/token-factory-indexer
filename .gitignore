@@ -1,0 +1,9 @@
+node_modules/
+.ponder/
+*.sqlite
+*.sqlite-shm
+*.sqlite-wal
+.env
+.env.local
+dist/
+ponder-env.d.ts
