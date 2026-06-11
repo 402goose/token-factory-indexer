@@ -7,13 +7,72 @@
 import { db } from "ponder:api";
 import schema from "ponder:schema";
 import { Hono } from "hono";
+import { cors } from "hono/cors";
 import { graphql } from "ponder";
-import { eq, desc, sum, count, sql } from "ponder";
+import { eq, desc, sum, count, sql, and, gte } from "ponder";
 
 const app = new Hono();
 
+// Browser consumers (the app's /agent monitor) fetch these endpoints directly.
+app.use("/*", cors({ origin: "*", allowMethods: ["GET", "POST", "OPTIONS"] }));
+
 // Ponder's auto-generated GraphQL — handles all schema tables uniformly.
 app.use("/graphql", graphql({ db, schema }));
+
+// --- REST: /agent monitor feed (AGENT_PAGE.md F-APP-06-C) ---
+
+/** Recent on-chain decode activity + today's totals for one wallet.
+ *  The web /agent monitor reads this; "today" is the UTC day (matches the
+ *  agent loop's daily-limit reset). */
+app.get("/v1/agent/activity", async (c) => {
+  const recipient = c.req.query("recipient")?.toLowerCase();
+  if (!recipient || !/^0x[0-9a-f]{40}$/.test(recipient)) {
+    return c.json({ error: "recipient query param required (0x address)" }, 400);
+  }
+  const limit = Math.min(Number(c.req.query("limit") ?? 20), 100);
+  const utcMidnight = Math.floor(Date.now() / 1000 / 86400) * 86400;
+
+  const [recent, today] = await Promise.all([
+    db
+      .select()
+      .from(schema.decoded)
+      .where(eq(schema.decoded.recipient, recipient as `0x${string}`))
+      .orderBy(desc(schema.decoded.timestamp))
+      .limit(limit),
+    db
+      .select({
+        mints: count().as("mints"),
+        cents: sum(schema.decoded.usdcCentsAttested).as("cents"),
+        tokenMinted: sum(schema.decoded.tokenMinted).as("tokenMinted"),
+        feeCents: sum(schema.decoded.feeCentsRouted).as("feeCents"),
+      })
+      .from(schema.decoded)
+      .where(
+        and(
+          eq(schema.decoded.recipient, recipient as `0x${string}`),
+          gte(schema.decoded.timestamp, utcMidnight),
+        ),
+      ),
+  ]);
+
+  return c.json({
+    recipient,
+    today: {
+      sinceUtc: utcMidnight,
+      mints: today[0]?.mints ?? 0,
+      usdcCents: today[0]?.cents?.toString() ?? "0",
+      tokenMinted: today[0]?.tokenMinted?.toString() ?? "0",
+      feeCents: today[0]?.feeCents?.toString() ?? "0",
+    },
+    recent: recent.map((r) => ({
+      uid: r.attestationUid,
+      usdcCents: r.usdcCentsAttested.toString(),
+      tokenMinted: r.tokenMinted.toString(),
+      timestamp: r.timestamp,
+      txHash: r.txHash,
+    })),
+  });
+});
 
 // --- REST: leaderboard helpers (the CLI's headline reads) ---
 
