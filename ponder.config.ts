@@ -13,8 +13,9 @@ import { DecoderAbi } from "./abis/Decoder.js";
 import { AttestorRegistryAbi } from "./abis/AttestorRegistry.js";
 import { EasAbi } from "./abis/EAS.js";
 
-// ai-infer-v1 schema UID on Base Sepolia — we index only EAS attestations on it.
+// EAS schema UIDs on Base Sepolia — we index attestations on these two only.
 const AI_INFER_SCHEMA = "0x3a2e897b0f3ee6cdddb349e297efa12ea14a32a4634a7953af97312771a4a3a2";
+const VERIFIED_ACCOUNT_SCHEMA = "0xbda8dd64efa4c537514cfe4c96ab5d5f14a8ec0c9105b799b47a010e89c0c72d";
 const EAS_PREDEPLOY = "0x4200000000000000000000000000000000000021";
 
 export default createConfig({
@@ -34,6 +35,16 @@ export default createConfig({
       address: EAS_PREDEPLOY,
       startBlock: 42_670_000,
       filter: { event: "Attested", args: { schemaUID: AI_INFER_SCHEMA } },
+    },
+    // Same EAS address, different schema — index verified-account attestations so
+    // the keeper can resolve a recipient's verification without an external
+    // GraphQL dependency (EASScan lags on Sepolia).
+    EASVerified: {
+      chain: "baseSepolia",
+      abi: EasAbi,
+      address: EAS_PREDEPLOY,
+      startBlock: 42_670_000,
+      filter: { event: "Attested", args: { schemaUID: VERIFIED_ACCOUNT_SCHEMA } },
     },
     // startBlock chosen as ~head − 200k for the spike so a cold sync finishes
     // in minutes against the public RPC. Production deploy backfills to the

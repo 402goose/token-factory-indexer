@@ -27,6 +27,18 @@ export const attestation = onchainTable(
   }),
 );
 
+export const verification = onchainTable(
+  "verification",
+  (t) => ({
+    id: t.text().primaryKey(), // recipient (one row per recipient; latest wins)
+    recipient: t.hex().notNull(),
+    uid: t.hex().notNull(),
+    attester: t.hex().notNull(),
+    blockNumber: t.bigint().notNull(),
+    timestamp: t.integer().notNull(),
+  }),
+);
+
 export const decoded = onchainTable(
   "decoded",
   (t) => ({

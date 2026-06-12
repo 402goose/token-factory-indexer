@@ -9,7 +9,7 @@ import schema from "ponder:schema";
 import { Hono } from "hono";
 import { cors } from "hono/cors";
 import { graphql } from "ponder";
-import { eq, desc, sum, count, sql, and, gte } from "ponder";
+import { eq, desc, sum, count, sql, and, gte, isNull } from "ponder";
 
 const app = new Hono();
 
@@ -119,6 +119,53 @@ app.get("/v1/attestations/recent", async (c) => {
       txHash: r.txHash,
     })),
   });
+});
+
+/** Undecoded ai-infer-v1 attestations — the auto-decode keeper's work queue.
+ *  Attestations with no matching Decoded event yet (left-join, decoded.id IS NULL).
+ *  Oldest first so the keeper drains the backlog FIFO. */
+app.get("/v1/attestations/undecoded", async (c) => {
+  const limit = Math.min(Number(c.req.query("limit") ?? 50), 200);
+  const rows = await db
+    .select({
+      uid: schema.attestation.uid,
+      attester: schema.attestation.attester,
+      recipient: schema.attestation.recipient,
+      usdcCents: schema.attestation.usdcCents,
+      provider: schema.attestation.provider,
+      timestamp: schema.attestation.timestamp,
+    })
+    .from(schema.attestation)
+    .leftJoin(schema.decoded, eq(schema.attestation.uid, schema.decoded.attestationUid))
+    .where(isNull(schema.decoded.id))
+    .orderBy(schema.attestation.timestamp)
+    .limit(limit);
+  return c.json({
+    undecoded: rows.map((r) => ({
+      uid: r.uid,
+      attester: r.attester,
+      recipient: r.recipient,
+      usdcCents: r.usdcCents.toString(),
+      provider: r.provider,
+      timestamp: r.timestamp,
+    })),
+  });
+});
+
+/** A recipient's verified-account attestation UID (or null). The keeper uses
+ *  this to find the verification needed to decode for that recipient. */
+app.get("/v1/verification", async (c) => {
+  const recipient = c.req.query("recipient")?.toLowerCase();
+  if (!recipient || !/^0x[0-9a-f]{40}$/.test(recipient)) {
+    return c.json({ error: "recipient query param required (0x address)" }, 400);
+  }
+  const rows = await db
+    .select()
+    .from(schema.verification)
+    .where(eq(schema.verification.id, recipient))
+    .limit(1);
+  const v = rows[0];
+  return c.json({ recipient, verified: Boolean(v), uid: v?.uid ?? null, attester: v?.attester ?? null });
 });
 
 // --- REST: leaderboard helpers (the CLI's headline reads) ---

@@ -5,6 +5,7 @@ import { decodeAbiParameters } from "viem";
 import { EasAbi } from "../abis/EAS.js";
 import {
   attestation,
+  verification,
   decoded,
   deposited,
   withdrawn,
@@ -61,6 +62,27 @@ ponder.on("EAS:Attested", async ({ event, context }) => {
       txHash: event.transaction.hash,
     })
     .onConflictDoNothing();
+});
+
+// EAS Attested for the verified-account schema — recipient → verification UID,
+// so the keeper resolves a recipient's verification from our own index.
+ponder.on("EASVerified:Attested", async ({ event, context }) => {
+  await context.db
+    .insert(verification)
+    .values({
+      id: event.args.recipient.toLowerCase(),
+      recipient: event.args.recipient,
+      uid: event.args.uid,
+      attester: event.args.attester,
+      blockNumber: event.block.number,
+      timestamp: Number(event.block.timestamp),
+    })
+    .onConflictDoUpdate(() => ({
+      uid: event.args.uid,
+      attester: event.args.attester,
+      blockNumber: event.block.number,
+      timestamp: Number(event.block.timestamp),
+    }));
 });
 
 ponder.on("Decoder:Decoded", async ({ event, context }) => {
