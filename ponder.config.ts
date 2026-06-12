@@ -43,7 +43,7 @@ export default createConfig({
       chain: "baseSepolia",
       abi: EasAbi,
       address: EAS_PREDEPLOY,
-      startBlock: 42731581,
+      startBlock: 42_670_000,
       filter: { event: "Attested", args: { schemaUID: VERIFIED_ACCOUNT_SCHEMA } },
     },
     // startBlock chosen as ~head − 200k for the spike so a cold sync finishes

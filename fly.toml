@@ -15,7 +15,7 @@ primary_region = "iad"
   PORT = "8080"
   # Schema namespace per stack generation — Ponder refuses to reuse a schema
   # across different builds. tf=pre-cap stack; tf2=v0.3 stack; tf3=G4 registry; tf4=agent-activity API; tf5=EAS attestation indexing; tf6=verification index; tf7=v2 stack (burn+hybrid).
-  DATABASE_SCHEMA = "tf7"
+  DATABASE_SCHEMA = "tf8"
 
 [[mounts]]
   source = "indexer_data"
