@@ -6,6 +6,27 @@
 
 import { onchainTable, index } from "ponder";
 
+export const attestation = onchainTable(
+  "attestation",
+  (t) => ({
+    id: t.text().primaryKey(), // attestation UID
+    uid: t.hex().notNull(),
+    attester: t.hex().notNull(),
+    recipient: t.hex().notNull(),
+    usdcCents: t.bigint().notNull(),
+    provider: t.hex().notNull(),
+    receiptId: t.hex().notNull(),
+    ts: t.bigint().notNull(),
+    blockNumber: t.bigint().notNull(),
+    timestamp: t.integer().notNull(),
+    txHash: t.hex().notNull(),
+  }),
+  (t) => ({
+    recipientIdx: index().on(t.recipient),
+    timestampIdx: index().on(t.timestamp),
+  }),
+);
+
 export const decoded = onchainTable(
   "decoded",
   (t) => ({

@@ -1,7 +1,10 @@
 /** Event handlers — one row per emitted event, keyed by (txHash:logIndex). */
 
 import { ponder } from "ponder:registry";
+import { decodeAbiParameters } from "viem";
+import { EasAbi } from "../abis/EAS.js";
 import {
+  attestation,
   decoded,
   deposited,
   withdrawn,
@@ -12,6 +15,53 @@ import {
 
 const rowId = (event: { transaction: { hash: string }; log: { logIndex: number } }) =>
   `${event.transaction.hash}:${event.log.logIndex}`;
+
+const EAS_PREDEPLOY = "0x4200000000000000000000000000000000000021" as const;
+
+// EAS Attested (ai-infer-v1 schema only — filtered in ponder.config). The event
+// carries just the UID; read getAttestation to recover the encoded payload.
+ponder.on("EAS:Attested", async ({ event, context }) => {
+  const uid = event.args.uid;
+  const att = await context.client.readContract({
+    abi: EasAbi,
+    address: EAS_PREDEPLOY,
+    functionName: "getAttestation",
+    args: [uid],
+  });
+  if (!att || att.data === "0x") return; // unreadable / empty payload
+  let decodedArgs: readonly [`0x${string}`, bigint, `0x${string}`, `0x${string}`, bigint];
+  try {
+    decodedArgs = decodeAbiParameters(
+      [
+        { name: "recipient", type: "address" },
+        { name: "usdcCents", type: "uint64" },
+        { name: "provider", type: "bytes32" },
+        { name: "receiptId", type: "bytes32" },
+        { name: "ts", type: "uint64" },
+      ],
+      att.data,
+    ) as readonly [`0x${string}`, bigint, `0x${string}`, `0x${string}`, bigint];
+  } catch {
+    return; // non-conforming payload — skip
+  }
+  const [recipient, usdcCents, provider, receiptId, ts] = decodedArgs;
+  await context.db
+    .insert(attestation)
+    .values({
+      id: uid,
+      uid,
+      attester: event.args.attester,
+      recipient,
+      usdcCents,
+      provider,
+      receiptId,
+      ts,
+      blockNumber: event.block.number,
+      timestamp: Number(event.block.timestamp),
+      txHash: event.transaction.hash,
+    })
+    .onConflictDoNothing();
+});
 
 ponder.on("Decoder:Decoded", async ({ event, context }) => {
   await context.db.insert(decoded).values({

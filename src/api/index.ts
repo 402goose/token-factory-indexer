@@ -97,6 +97,30 @@ app.get("/v1/decodes/recent", async (c) => {
   });
 });
 
+/** Recent ai-infer-v1 attestations, newest first — feeds the app's "Recent
+ *  attestations" panel (replaces a browser-side EASScan GraphQL call). */
+app.get("/v1/attestations/recent", async (c) => {
+  const limit = Math.min(Number(c.req.query("limit") ?? 10), 50);
+  const rows = await db
+    .select()
+    .from(schema.attestation)
+    .orderBy(desc(schema.attestation.timestamp))
+    .limit(limit);
+  return c.json({
+    attestations: rows.map((r) => ({
+      uid: r.uid,
+      attester: r.attester,
+      recipient: r.recipient,
+      usdcCents: r.usdcCents.toString(),
+      provider: r.provider,
+      receiptId: r.receiptId,
+      ts: r.ts.toString(),
+      timestamp: r.timestamp,
+      txHash: r.txHash,
+    })),
+  });
+});
+
 // --- REST: leaderboard helpers (the CLI's headline reads) ---
 
 /** Top recipients by tokens minted. */

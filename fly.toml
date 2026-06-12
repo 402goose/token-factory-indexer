@@ -14,8 +14,8 @@ primary_region = "iad"
   NODE_ENV = "production"
   PORT = "8080"
   # Schema namespace per stack generation — Ponder refuses to reuse a schema
-  # across different builds. tf=pre-cap stack; tf2=v0.3 stack; tf3=G4 registry; tf4=agent-activity API.
-  DATABASE_SCHEMA = "tf4"
+  # across different builds. tf=pre-cap stack; tf2=v0.3 stack; tf3=G4 registry; tf4=agent-activity API; tf5=EAS attestation indexing.
+  DATABASE_SCHEMA = "tf5"
 
 [[mounts]]
   source = "indexer_data"

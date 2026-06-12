@@ -11,6 +11,11 @@
 import { createConfig } from "ponder";
 import { DecoderAbi } from "./abis/Decoder.js";
 import { AttestorRegistryAbi } from "./abis/AttestorRegistry.js";
+import { EasAbi } from "./abis/EAS.js";
+
+// ai-infer-v1 schema UID on Base Sepolia — we index only EAS attestations on it.
+const AI_INFER_SCHEMA = "0x3a2e897b0f3ee6cdddb349e297efa12ea14a32a4634a7953af97312771a4a3a2";
+const EAS_PREDEPLOY = "0x4200000000000000000000000000000000000021";
 
 export default createConfig({
   chains: {
@@ -20,6 +25,16 @@ export default createConfig({
     },
   },
   contracts: {
+    // EAS: index Attested events for ONLY our ai-infer-v1 schema (filter on the
+    // indexed schemaUID), then read getAttestation in the handler to decode the
+    // payload. startBlock matches the rest of the current stack.
+    EAS: {
+      chain: "baseSepolia",
+      abi: EasAbi,
+      address: EAS_PREDEPLOY,
+      startBlock: 42_670_000,
+      filter: { event: "Attested", args: { schemaUID: AI_INFER_SCHEMA } },
+    },
     // startBlock chosen as ~head − 200k for the spike so a cold sync finishes
     // in minutes against the public RPC. Production deploy backfills to the
     // actual deploy block.
