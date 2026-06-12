@@ -126,6 +126,14 @@ app.get("/v1/attestations/recent", async (c) => {
  *  Oldest first so the keeper drains the backlog FIFO. */
 app.get("/v1/attestations/undecoded", async (c) => {
   const limit = Math.min(Number(c.req.query("limit") ?? 50), 200);
+  // Optional recipient filter — the CLI `earn` coach asks "how many of MY receipts
+  // are still settling?" so it can reassure the user their TOKEN is on the way.
+  const recipient = c.req.query("recipient")?.toLowerCase();
+  const recipientValid = recipient && /^0x[0-9a-f]{40}$/.test(recipient);
+  const undecodedCond = isNull(schema.decoded.id);
+  const where = recipientValid
+    ? and(undecodedCond, eq(schema.attestation.recipient, recipient as `0x${string}`))
+    : undecodedCond;
   const rows = await db
     .select({
       uid: schema.attestation.uid,
@@ -137,7 +145,7 @@ app.get("/v1/attestations/undecoded", async (c) => {
     })
     .from(schema.attestation)
     .leftJoin(schema.decoded, eq(schema.attestation.uid, schema.decoded.attestationUid))
-    .where(isNull(schema.decoded.id))
+    .where(where)
     .orderBy(schema.attestation.timestamp)
     .limit(limit);
   return c.json({
