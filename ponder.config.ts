@@ -33,7 +33,7 @@ export default createConfig({
       chain: "baseSepolia",
       abi: EasAbi,
       address: EAS_PREDEPLOY,
-      startBlock: 42_670_000,
+      startBlock: 42731581,
       filter: { event: "Attested", args: { schemaUID: AI_INFER_SCHEMA } },
     },
     // Same EAS address, different schema — index verified-account attestations so
@@ -43,7 +43,7 @@ export default createConfig({
       chain: "baseSepolia",
       abi: EasAbi,
       address: EAS_PREDEPLOY,
-      startBlock: 42_670_000,
+      startBlock: 42731581,
       filter: { event: "Attested", args: { schemaUID: VERIFIED_ACCOUNT_SCHEMA } },
     },
     // startBlock chosen as ~head − 200k for the spike so a cold sync finishes
@@ -52,14 +52,14 @@ export default createConfig({
     Decoder: {
       chain: "baseSepolia",
       abi: DecoderAbi,
-      address: "0xCB9E8f3877b5797386fF28bF6d584B6a1dfaD50D",
-      startBlock: 42_670_000,
+      address: "0xD178D74d612Db21896170850c53917F5606555Ea",
+      startBlock: 42731581,
     },
     AttestorRegistry: {
       chain: "baseSepolia",
       abi: AttestorRegistryAbi,
-      address: "0x60e77cF48feC08F07c0C55939E71c169C65C3E18",
-      startBlock: 42673873,
+      address: "0x63086A6421363cD3C34A5414ba0418E2e8fa235a",
+      startBlock: 42731581,
     },
   },
 });
