@@ -74,6 +74,29 @@ app.get("/v1/agent/activity", async (c) => {
   });
 });
 
+/** Recent decode events, newest first — feeds the app's "Recent mints" panel
+ *  (replaces a client-side eth_getLogs sweep the public RPC rate-limits). */
+app.get("/v1/decodes/recent", async (c) => {
+  const limit = Math.min(Number(c.req.query("limit") ?? 8), 50);
+  const rows = await db
+    .select()
+    .from(schema.decoded)
+    .orderBy(desc(schema.decoded.timestamp))
+    .limit(limit);
+  return c.json({
+    decodes: rows.map((r) => ({
+      txHash: r.txHash,
+      attestationUid: r.attestationUid,
+      recipient: r.recipient,
+      usdcCents: r.usdcCentsAttested.toString(),
+      tokenMinted: r.tokenMinted.toString(),
+      feeCents: r.feeCentsRouted.toString(),
+      blockNumber: r.blockNumber.toString(),
+      timestamp: r.timestamp,
+    })),
+  });
+});
+
 // --- REST: leaderboard helpers (the CLI's headline reads) ---
 
 /** Top recipients by tokens minted. */
