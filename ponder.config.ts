@@ -33,7 +33,10 @@ export default createConfig({
       chain: "baseSepolia",
       abi: EasAbi,
       address: EAS_PREDEPLOY,
-      startBlock: 42731581,
+      // v3 stack (security-hardened core, 2026-06-11). Aligns ai-infer indexing with
+      // the new Decoder so pre-v3 attestations (decoded by the retired Decoder) don't
+      // surface as "undecoded" to the keeper.
+      startBlock: 42735720,
       filter: { event: "Attested", args: { schemaUID: AI_INFER_SCHEMA } },
     },
     // Same EAS address, different schema — index verified-account attestations so
@@ -49,17 +52,19 @@ export default createConfig({
     // startBlock chosen as ~head − 200k for the spike so a cold sync finishes
     // in minutes against the public RPC. Production deploy backfills to the
     // actual deploy block.
+    // v3 stack — security-hardened core (cap fails closed, slashing reaches pending
+    // shares). Redeployed 2026-06-11; addresses + startBlock updated together.
     Decoder: {
       chain: "baseSepolia",
       abi: DecoderAbi,
-      address: "0xD178D74d612Db21896170850c53917F5606555Ea",
-      startBlock: 42731581,
+      address: "0xa8cB0275e496a3Db932A9F0e4Be1bace01E6DE27",
+      startBlock: 42735720,
     },
     AttestorRegistry: {
       chain: "baseSepolia",
       abi: AttestorRegistryAbi,
-      address: "0x63086A6421363cD3C34A5414ba0418E2e8fa235a",
-      startBlock: 42731581,
+      address: "0xC510BD369Fb5977370F7fB121e728178bdAb04F4",
+      startBlock: 42735720,
     },
   },
 });
