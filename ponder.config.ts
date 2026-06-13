@@ -36,7 +36,7 @@ export default createConfig({
       // v3 stack (security-hardened core, 2026-06-11). Aligns ai-infer indexing with
       // the new Decoder so pre-v3 attestations (decoded by the retired Decoder) don't
       // surface as "undecoded" to the keeper.
-      startBlock: 42735720,
+      startBlock: 42781380,
       filter: { event: "Attested", args: { schemaUID: AI_INFER_SCHEMA } },
     },
     // Same EAS address, different schema — index verified-account attestations so
@@ -57,14 +57,14 @@ export default createConfig({
     Decoder: {
       chain: "baseSepolia",
       abi: DecoderAbi,
-      address: "0xa8cB0275e496a3Db932A9F0e4Be1bace01E6DE27",
-      startBlock: 42735720,
+      address: "0x5331Faaea1884Fa580AE50Ed8DdA89Ad515b400F",
+      startBlock: 42781380,
     },
     AttestorRegistry: {
       chain: "baseSepolia",
       abi: AttestorRegistryAbi,
-      address: "0xC510BD369Fb5977370F7fB121e728178bdAb04F4",
-      startBlock: 42735720,
+      address: "0x38bddBA066DB467D07D3a7C2305EE5fc7e4f80D4",
+      startBlock: 42781380,
     },
   },
 });
