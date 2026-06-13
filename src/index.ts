@@ -12,6 +12,7 @@ import {
   slashed,
   slashedByProof,
   rosterChange,
+  yieldReward,
 } from "ponder:schema";
 
 const rowId = (event: { transaction: { hash: string }; log: { logIndex: number } }) =>
@@ -166,6 +167,18 @@ ponder.on("AttestorRegistry:AttestorDemoted", async ({ event, context }) => {
     id: rowId(event),
     attestor: event.args.attestor,
     promoted: false,
+    blockNumber: event.block.number,
+    timestamp: Number(event.block.timestamp),
+    txHash: event.transaction.hash,
+  });
+});
+
+ponder.on("YieldVault:RewardNotified", async ({ event, context }) => {
+  await context.db.insert(yieldReward).values({
+    id: rowId(event),
+    from: event.args.from,
+    amount: event.args.amount,
+    rewardPerTokenAcc: event.args.rewardPerTokenAcc,
     blockNumber: event.block.number,
     timestamp: Number(event.block.timestamp),
     txHash: event.transaction.hash,

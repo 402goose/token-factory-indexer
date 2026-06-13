@@ -12,6 +12,7 @@ import { createConfig } from "ponder";
 import { DecoderAbi } from "./abis/Decoder.js";
 import { AttestorRegistryAbi } from "./abis/AttestorRegistry.js";
 import { EasAbi } from "./abis/EAS.js";
+import { YieldVaultAbi } from "./abis/YieldVault.js";
 
 // EAS schema UIDs on Base Sepolia — we index attestations on these two only.
 const AI_INFER_SCHEMA = "0x3a2e897b0f3ee6cdddb349e297efa12ea14a32a4634a7953af97312771a4a3a2";
@@ -65,6 +66,14 @@ export default createConfig({
       abi: AttestorRegistryAbi,
       address: "0x72AB05c826135C8171a658CA5f3919c826c52F3C",
       startBlock: 42809340,
+    },
+    // TokenYieldVault (demand-side sink). Index RewardNotified to total the USDC paid
+    // to stakers and power the /yield APR. Standalone contract, deployed after v5 core.
+    YieldVault: {
+      chain: "baseSepolia",
+      abi: YieldVaultAbi,
+      address: "0x334BcAC3EFd91d94C505Cec997f1114C7B21A03d",
+      startBlock: 42809800,
     },
   },
 });

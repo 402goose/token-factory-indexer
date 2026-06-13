@@ -124,6 +124,41 @@ app.get("/v1/attestations/recent", async (c) => {
 /** Undecoded ai-infer-v1 attestations — the auto-decode keeper's work queue.
  *  Attestations with no matching Decoded event yet (left-join, decoded.id IS NULL).
  *  Oldest first so the keeper drains the backlog FIFO. */
+/** Yield-vault revenue stats — powers the /yield APR + total-paid figure.
+ *  Returns all-time USDC distributed to stakers + a windowed sum the app annualizes
+ *  against on-chain TVL. (The app reads totalStaked + TOKEN price itself.) */
+app.get("/v1/yield/stats", async (c) => {
+  const windowDays = Math.min(Math.max(Number(c.req.query("windowDays") ?? 30), 1), 365);
+  const nowSec = Math.floor(Date.now() / 1000);
+  const since = nowSec - windowDays * 86_400;
+
+  const [allTime] = await db
+    .select({
+      total: sum(schema.yieldReward.amount),
+      count: count(),
+      first: sql<number>`min(${schema.yieldReward.timestamp})`,
+      last: sql<number>`max(${schema.yieldReward.timestamp})`,
+    })
+    .from(schema.yieldReward);
+
+  const [windowed] = await db
+    .select({ total: sum(schema.yieldReward.amount) })
+    .from(schema.yieldReward)
+    .where(gte(schema.yieldReward.timestamp, since));
+
+  const windowUsdc = BigInt(windowed?.total ?? 0);
+  return c.json({
+    totalDistributedUsdcRaw: (allTime?.total ?? "0").toString(),
+    rewardCount: Number(allTime?.count ?? 0),
+    firstRewardTs: allTime?.first ?? null,
+    lastRewardTs: allTime?.last ?? null,
+    windowDays,
+    windowRewardsUsdcRaw: windowUsdc.toString(),
+    // Annualize the window so the app divides by TVL_usd to get APR%.
+    annualizedUsdcRaw: ((windowUsdc * 365n) / BigInt(windowDays)).toString(),
+  });
+});
+
 app.get("/v1/attestations/undecoded", async (c) => {
   const limit = Math.min(Number(c.req.query("limit") ?? 50), 200);
   // Optional recipient filter — the CLI `earn` coach asks "how many of MY receipts

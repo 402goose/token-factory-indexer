@@ -131,3 +131,19 @@ export const rosterChange = onchainTable(
     txHash: t.hex().notNull(),
   }),
 );
+
+// TokenYieldVault RewardNotified — each USDC reward streamed to stakers. Powers the
+// /yield APR (windowed sum) and the total-distributed figure.
+export const yieldReward = onchainTable(
+  "yield_reward",
+  (t) => ({
+    id: t.text().primaryKey(), // `${txHash}:${logIndex}`
+    from: t.hex().notNull(),
+    amount: t.bigint().notNull(), // USDC 6dp
+    rewardPerTokenAcc: t.bigint().notNull(),
+    blockNumber: t.bigint().notNull(),
+    timestamp: t.integer().notNull(),
+    txHash: t.hex().notNull(),
+  }),
+  (t) => ({ timestampIdx: index().on(t.timestamp) }),
+);
