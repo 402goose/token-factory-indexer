@@ -37,7 +37,7 @@ export default createConfig({
       // v3 stack (security-hardened core, 2026-06-11). Aligns ai-infer indexing with
       // the new Decoder so pre-v3 attestations (decoded by the retired Decoder) don't
       // surface as "undecoded" to the keeper.
-      startBlock: 42809340,
+      startBlock: 42816440,
       filter: { event: "Attested", args: { schemaUID: AI_INFER_SCHEMA } },
     },
     // Same EAS address, different schema — index verified-account attestations so
@@ -58,22 +58,22 @@ export default createConfig({
     Decoder: {
       chain: "baseSepolia",
       abi: DecoderAbi,
-      address: "0xe3F26Ad371205F2f920034f58Ace364150485C8c",
-      startBlock: 42809340,
+      address: "0xc611EEC865545412Aaf7d50eBFc3514BCC23ecc6",
+      startBlock: 42816440,
     },
     AttestorRegistry: {
       chain: "baseSepolia",
       abi: AttestorRegistryAbi,
-      address: "0x72AB05c826135C8171a658CA5f3919c826c52F3C",
-      startBlock: 42809340,
+      address: "0x27c230eEF1D40a30080Ca38C36dE601C2Ec24EE0",
+      startBlock: 42816440,
     },
     // TokenYieldVault (demand-side sink). Index RewardNotified to total the USDC paid
     // to stakers and power the /yield APR. Standalone contract, deployed after v5 core.
     YieldVault: {
       chain: "baseSepolia",
       abi: YieldVaultAbi,
-      address: "0x334BcAC3EFd91d94C505Cec997f1114C7B21A03d",
-      startBlock: 42809800,
+      address: "0x20BF7c0B977b117e6a53c27e40ae12Ecd69667e8",
+      startBlock: 42816440,
     },
   },
 });
