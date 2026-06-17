@@ -19,6 +19,17 @@ const AI_INFER_SCHEMA = "0x3a2e897b0f3ee6cdddb349e297efa12ea14a32a4634a7953af973
 const VERIFIED_ACCOUNT_SCHEMA = "0xbda8dd64efa4c537514cfe4c96ab5d5f14a8ec0c9105b799b47a010e89c0c72d";
 const EAS_PREDEPLOY = "0x4200000000000000000000000000000000000021";
 
+// Contract addresses + start block are env-overridable so the same config drives
+// the live Sepolia stack (defaults) AND a local fork (e2e / a fresh deploy) without
+// editing this file. On a fork, set PONDER_START_BLOCK to the fork block so Ponder
+// doesn't backfill hundreds of thousands of blocks through anvil's upstream RPC.
+type Hex40 = `0x${string}`;
+const env = (k: string, fallback: string) => (process.env[k] || fallback) as Hex40;
+const DECODER_ADDRESS = env("TF_DECODER_ADDRESS", "0xc611EEC865545412Aaf7d50eBFc3514BCC23ecc6");
+const REGISTRY_ADDRESS = env("TF_REGISTRY_ADDRESS", "0x27c230eEF1D40a30080Ca38C36dE601C2Ec24EE0");
+const YIELD_VAULT_ADDRESS = env("TF_YIELD_VAULT_ADDRESS", "0x20BF7c0B977b117e6a53c27e40ae12Ecd69667e8");
+const START = process.env.PONDER_START_BLOCK ? Number(process.env.PONDER_START_BLOCK) : undefined;
+
 export default createConfig({
   chains: {
     baseSepolia: {
@@ -34,10 +45,7 @@ export default createConfig({
       chain: "baseSepolia",
       abi: EasAbi,
       address: EAS_PREDEPLOY,
-      // v3 stack (security-hardened core, 2026-06-11). Aligns ai-infer indexing with
-      // the new Decoder so pre-v3 attestations (decoded by the retired Decoder) don't
-      // surface as "undecoded" to the keeper.
-      startBlock: 42816440,
+      startBlock: START ?? 42816440,
       filter: { event: "Attested", args: { schemaUID: AI_INFER_SCHEMA } },
     },
     // Same EAS address, different schema — index verified-account attestations so
@@ -47,7 +55,7 @@ export default createConfig({
       chain: "baseSepolia",
       abi: EasAbi,
       address: EAS_PREDEPLOY,
-      startBlock: 42_670_000,
+      startBlock: START ?? 42_670_000,
       filter: { event: "Attested", args: { schemaUID: VERIFIED_ACCOUNT_SCHEMA } },
     },
     // startBlock chosen as ~head − 200k for the spike so a cold sync finishes
@@ -58,22 +66,22 @@ export default createConfig({
     Decoder: {
       chain: "baseSepolia",
       abi: DecoderAbi,
-      address: "0xc611EEC865545412Aaf7d50eBFc3514BCC23ecc6",
-      startBlock: 42816440,
+      address: DECODER_ADDRESS,
+      startBlock: START ?? 42816440,
     },
     AttestorRegistry: {
       chain: "baseSepolia",
       abi: AttestorRegistryAbi,
-      address: "0x27c230eEF1D40a30080Ca38C36dE601C2Ec24EE0",
-      startBlock: 42816440,
+      address: REGISTRY_ADDRESS,
+      startBlock: START ?? 42816440,
     },
     // TokenYieldVault (demand-side sink). Index RewardNotified to total the USDC paid
     // to stakers and power the /yield APR. Standalone contract, deployed after v5 core.
     YieldVault: {
       chain: "baseSepolia",
       abi: YieldVaultAbi,
-      address: "0x20BF7c0B977b117e6a53c27e40ae12Ecd69667e8",
-      startBlock: 42816440,
+      address: YIELD_VAULT_ADDRESS,
+      startBlock: START ?? 42816440,
     },
   },
 });
