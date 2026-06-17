@@ -33,6 +33,18 @@ primary_region = "iad"
     soft_limit = 50
     hard_limit = 100
 
+  # Liveness check on Ponder's /health (200 once the HTTP server is up). Without
+  # this, a Ponder stuck on a dead/rate-limited RPC keeps the machine "started"
+  # but unreachable forever (it never binds HTTP) — and the keeper silently gets
+  # no data. The check restarts a stuck machine and keeps it healthy once a real
+  # RPC is set. Generous grace_period so startup + initial sync isn't killed.
+  [[http_service.checks]]
+    interval = "30s"
+    timeout = "10s"
+    grace_period = "180s"
+    method = "GET"
+    path = "/health"
+
 [[vm]]
   cpu_kind = "shared"
   cpus = 1
