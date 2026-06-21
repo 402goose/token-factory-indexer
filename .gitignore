@@ -17,3 +17,4 @@ graphify-out/.graphify_python
 graphify-out/.graphify_labels.json
 graphify-out/.graphify_root
 .mcp.local.json
+graphify-out/GRAPH_REPORT.md

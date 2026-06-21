@@ -3,29 +3,32 @@
 # Mirrors the Visa-mono/concourse setup so the code-graph workflow is identical
 # across the fleet.
 #
-# Idempotent. Safe to re-run. Does:
-#   1. Installs graphifyy (+ mcp extra) into a uv tool env.
-#   2. Installs the post-commit/post-checkout git hooks so the AST graph
-#      refreshes automatically on every commit (free, no LLM cost).
-#   3. Writes your personal .mcp.local.json so Claude Code gets the graphify
-#      MCP tools live (query_graph, get_node, get_neighbors, shortest_path).
-#   4. Resolves the local Python interpreter graphify needs.
-#   5. Builds the graph if missing, then verifies with a smoke query.
-#
-# Flags: --skip-mcp (no .mcp.local.json), --skip-hooks (read-only viewers).
-# The heavy graphify-out/graph.json is gitignored and regenerated locally —
-# run `graphify update .` after pulling. Only GRAPH_REPORT.md is committed.
+# Idempotent + offline-friendly: graphifyy is installed only when missing.
+# The heavy graphify-out/* is gitignored and regenerated locally via
+# `graphify update .`. Flags: --skip-mcp, --skip-hooks, --upgrade.
+# NOTE: on large repos prefer --skip-hooks (the post-commit hook rebuilds the
+# graph on every commit, which is slow above a few thousand nodes).
 
 set -euo pipefail
 
-SKIP_MCP=0
-SKIP_HOOKS=0
+usage() {
+  cat <<'USAGE'
+graphify-setup.sh — install graphify in this repo.
+  --skip-mcp     do not write .mcp.local.json
+  --skip-hooks   do not install the git hooks (recommended on large repos)
+  --upgrade      force `uv tool upgrade` even if graphify is already installed
+  -h, --help     show this help
+USAGE
+}
+
+SKIP_MCP=0; SKIP_HOOKS=0; FORCE_UPGRADE=0
 for arg in "$@"; do
   case "$arg" in
     --skip-mcp) SKIP_MCP=1 ;;
     --skip-hooks) SKIP_HOOKS=1 ;;
-    -h|--help) sed -n '2,19p' "$0"; exit 0 ;;
-    *) echo "unknown flag: $arg" >&2; exit 1 ;;
+    --upgrade) FORCE_UPGRADE=1 ;;
+    -h|--help) usage; exit 0 ;;
+    *) echo "unknown flag: $arg" >&2; usage >&2; exit 1 ;;
   esac
 done
 
@@ -33,52 +36,71 @@ REPO_ROOT="$(cd "$(dirname "$0")/.." && pwd)"
 cd "$REPO_ROOT"
 echo "graphify-setup: repo root = $REPO_ROOT"
 
-if ! command -v uv >/dev/null 2>&1; then
+command -v uv >/dev/null 2>&1 || {
   echo "graphify-setup: uv not found. Install it first:" >&2
   echo "  curl -LsSf https://astral.sh/uv/install.sh | sh" >&2
   exit 1
+}
+
+# uv installs tool executables into its bin dir — make sure it's on PATH BEFORE
+# we call the bare `graphify` binary anywhere below.
+UV_BIN="$(uv tool dir --bin 2>/dev/null || true)"
+export PATH="${UV_BIN:-$HOME/.local/bin}:$PATH"
+
+# Install only when missing (idempotent + works offline on re-runs); --upgrade opts in.
+if [ "$FORCE_UPGRADE" -eq 1 ]; then
+  echo "graphify-setup: upgrading graphifyy…"; uv tool install --upgrade --with mcp graphifyy 2>&1 | tail -3
+elif ! command -v graphify >/dev/null 2>&1; then
+  echo "graphify-setup: installing graphifyy…"; uv tool install --with mcp graphifyy 2>&1 | tail -3
+else
+  echo "graphify-setup: graphify already installed (pass --upgrade to refresh)."
 fi
 
-echo "graphify-setup: installing/upgrading graphifyy…"
-uv tool install --upgrade --with mcp graphifyy 2>&1 | tail -3
+# Fail fast if the binary still isn't callable — better than a half-configured repo.
+command -v graphify >/dev/null 2>&1 || {
+  echo "graphify-setup: 'graphify' is not on PATH after install." >&2
+  echo "  Add uv's tool bin to PATH: export PATH=\"${UV_BIN:-$HOME/.local/bin}:\$PATH\"" >&2
+  exit 1
+}
 
+# Resolve the interpreter that actually has graphifyy. No system-python3 fallback:
+# a python3 without the package would write a dead launcher into .mcp.local.json.
 mkdir -p graphify-out
-GRAPHIFY_PY=$(uv tool run --from graphifyy python -c "import sys; print(sys.executable)" 2>/dev/null || command -v python3)
+GRAPHIFY_PY="$(uv tool run --from graphifyy python -c 'import sys; print(sys.executable)' 2>/dev/null || true)"
+[ -n "$GRAPHIFY_PY" ] || { echo "graphify-setup: could not resolve the graphify python interpreter." >&2; exit 1; }
 echo "$GRAPHIFY_PY" > graphify-out/.graphify_python
 echo "graphify-setup: python interpreter = $GRAPHIFY_PY"
 
 if [ "$SKIP_HOOKS" -eq 0 ]; then
-  echo "graphify-setup: installing git hooks…"
-  graphify hook install 2>&1 | sed 's/^/  /'
+  echo "graphify-setup: installing git hooks…"; graphify hook install 2>&1 | sed 's/^/  /'
 else
   echo "graphify-setup: skipping git hooks (--skip-hooks)"
 fi
 
 if [ "$SKIP_MCP" -eq 0 ]; then
-  if [ -f .mcp.local.json ]; then
-    echo "graphify-setup: .mcp.local.json already exists — leaving as-is"
-  else
-    cat > .mcp.local.json <<EOF
-{
-  "mcpServers": {
-    "graphify": {
-      "command": "$GRAPHIFY_PY",
-      "args": ["-m", "graphify.serve", "$REPO_ROOT/graphify-out/graph.json"]
-    }
-  }
-}
-EOF
+  # Rewrite if missing OR if the recorded interpreter has drifted from the live one.
+  need_write=1
+  if [ -f .mcp.local.json ] && grep -qF "\"$GRAPHIFY_PY\"" .mcp.local.json 2>/dev/null; then need_write=0; fi
+  if [ "$need_write" -eq 1 ]; then
+    # JSON-escape the two interpolated paths (backslashes + double-quotes).
+    esc() { printf '%s' "$1" | sed 's/\\/\\\\/g; s/"/\\"/g'; }
+    printf '{\n  "mcpServers": {\n    "graphify": {\n      "command": "%s",\n      "args": ["-m", "graphify.serve", "%s/graphify-out/graph.json"]\n    }\n  }\n}\n' \
+      "$(esc "$GRAPHIFY_PY")" "$(esc "$REPO_ROOT")" > .mcp.local.json
     echo "graphify-setup: wrote .mcp.local.json (gitignored). Restart Claude Code to load it."
+  else
+    echo "graphify-setup: .mcp.local.json already current — leaving as-is"
   fi
 fi
 
-if [ ! -f graphify-out/graph.json ]; then
-  echo "graphify-setup: building the graph (first run)…"
-  graphify update . 2>&1 | tail -3
-fi
+[ -f graphify-out/graph.json ] || { echo "graphify-setup: building the graph…"; graphify update . 2>&1 | tail -3; }
 
-if [ -f graphify-out/graph.json ]; then
-  echo "graphify-setup: verifying with a smoke query…"
-  graphify query "entry point" --budget 200 2>&1 | head -5 | sed 's/^/  /' || true
+# Honest smoke test: only report success if the query actually succeeds.
+if graphify query "entry point" --budget 200 >/tmp/graphify-smoke.$$ 2>&1; then
+  head -5 /tmp/graphify-smoke.$$ | sed 's/^/  /'
   echo "graphify-setup: DONE ✓  ·  ask the graph: graphify query \"<question>\""
+else
+  echo "graphify-setup: smoke query FAILED — graph may be empty or unbuilt:" >&2
+  head -5 /tmp/graphify-smoke.$$ | sed 's/^/  /' >&2
+  rm -f /tmp/graphify-smoke.$$; exit 1
 fi
+rm -f /tmp/graphify-smoke.$$
