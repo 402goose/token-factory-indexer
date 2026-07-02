@@ -9,6 +9,7 @@
  *  (rounded down). For mainnet, bump network + start blocks + addresses. */
 
 import { createConfig } from "ponder";
+import { fallback, http } from "viem";
 import { DecoderAbi } from "./abis/Decoder.js";
 import { AttestorRegistryAbi } from "./abis/AttestorRegistry.js";
 import { EasAbi } from "./abis/EAS.js";
@@ -30,11 +31,24 @@ const REGISTRY_ADDRESS = env("TF_REGISTRY_ADDRESS", "0x27c230eEF1D40a30080Ca38C3
 const YIELD_VAULT_ADDRESS = env("TF_YIELD_VAULT_ADDRESS", "0x20BF7c0B977b117e6a53c27e40ae12Ecd69667e8");
 const START = process.env.PONDER_START_BLOCK ? Number(process.env.PONDER_START_BLOCK) : undefined;
 
+// RPC resilience: free best-effort endpoints (drpc, public Base) each flake on their
+// own — drpc handles the archive backfill but times out on realtime block polling;
+// sepolia.base.org rate-limits big backfills but is fine for realtime/incremental.
+// So use a viem fallback() across a comma-separated list: Ponder tries the first and
+// falls through on timeout/error. PONDER_RPC_URL_84532 overrides (comma-separated for
+// multiple; a single dedicated keyed RPC is still the real fix — see indexer issue #1).
+const RPC_URLS = (
+  process.env.PONDER_RPC_URL_84532 ?? "https://base-sepolia.drpc.org,https://sepolia.base.org"
+)
+  .split(",")
+  .map((s) => s.trim())
+  .filter(Boolean);
+
 export default createConfig({
   chains: {
     baseSepolia: {
       id: 84532,
-      rpc: process.env.PONDER_RPC_URL_84532 ?? "https://sepolia.base.org",
+      rpc: fallback(RPC_URLS.map((u) => http(u, { timeout: 20_000 }))),
     },
   },
   contracts: {
