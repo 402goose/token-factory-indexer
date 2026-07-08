@@ -22,6 +22,10 @@ type Meta {
 }
 
 type Query {
+  attestation(id: String!): attestation
+  attestations(where: attestationFilter, orderBy: String, orderDirection: String, before: String, after: String, limit: Int, offset: Int): attestationPage!
+  verification(id: String!): verification
+  verifications(where: verificationFilter, orderBy: String, orderDirection: String, before: String, after: String, limit: Int, offset: Int): verificationPage!
   decoded(id: String!): decoded
   decodeds(where: decodedFilter, orderBy: String, orderDirection: String, before: String, after: String, limit: Int, offset: Int): decodedPage!
   deposited(id: String!): deposited
@@ -34,7 +38,224 @@ type Query {
   slashedByProofs(where: slashedByProofFilter, orderBy: String, orderDirection: String, before: String, after: String, limit: Int, offset: Int): slashedByProofPage!
   rosterChange(id: String!): rosterChange
   rosterChanges(where: rosterChangeFilter, orderBy: String, orderDirection: String, before: String, after: String, limit: Int, offset: Int): rosterChangePage!
+  yieldReward(id: String!): yieldReward
+  yieldRewards(where: yieldRewardFilter, orderBy: String, orderDirection: String, before: String, after: String, limit: Int, offset: Int): yieldRewardPage!
   _meta: Meta
+}
+
+type attestation {
+  id: String!
+  uid: String!
+  attester: String!
+  recipient: String!
+  usdcCents: BigInt!
+  provider: String!
+  receiptId: String!
+  ts: BigInt!
+  blockNumber: BigInt!
+  timestamp: Int!
+  txHash: String!
+}
+
+type attestationPage {
+  items: [attestation!]!
+  pageInfo: PageInfo!
+  totalCount: Int!
+}
+
+input attestationFilter {
+  AND: [attestationFilter]
+  OR: [attestationFilter]
+  id: String
+  id_not: String
+  id_in: [String]
+  id_not_in: [String]
+  id_contains: String
+  id_not_contains: String
+  id_starts_with: String
+  id_ends_with: String
+  id_not_starts_with: String
+  id_not_ends_with: String
+  id_contains_nocase: String
+  id_not_contains_nocase: String
+  id_starts_with_nocase: String
+  id_ends_with_nocase: String
+  id_not_starts_with_nocase: String
+  id_not_ends_with_nocase: String
+  uid: String
+  uid_not: String
+  uid_in: [String]
+  uid_not_in: [String]
+  uid_contains: String
+  uid_not_contains: String
+  uid_starts_with: String
+  uid_ends_with: String
+  uid_not_starts_with: String
+  uid_not_ends_with: String
+  attester: String
+  attester_not: String
+  attester_in: [String]
+  attester_not_in: [String]
+  attester_contains: String
+  attester_not_contains: String
+  attester_starts_with: String
+  attester_ends_with: String
+  attester_not_starts_with: String
+  attester_not_ends_with: String
+  recipient: String
+  recipient_not: String
+  recipient_in: [String]
+  recipient_not_in: [String]
+  recipient_contains: String
+  recipient_not_contains: String
+  recipient_starts_with: String
+  recipient_ends_with: String
+  recipient_not_starts_with: String
+  recipient_not_ends_with: String
+  usdcCents: BigInt
+  usdcCents_not: BigInt
+  usdcCents_in: [BigInt]
+  usdcCents_not_in: [BigInt]
+  usdcCents_gt: BigInt
+  usdcCents_lt: BigInt
+  usdcCents_gte: BigInt
+  usdcCents_lte: BigInt
+  provider: String
+  provider_not: String
+  provider_in: [String]
+  provider_not_in: [String]
+  provider_contains: String
+  provider_not_contains: String
+  provider_starts_with: String
+  provider_ends_with: String
+  provider_not_starts_with: String
+  provider_not_ends_with: String
+  receiptId: String
+  receiptId_not: String
+  receiptId_in: [String]
+  receiptId_not_in: [String]
+  receiptId_contains: String
+  receiptId_not_contains: String
+  receiptId_starts_with: String
+  receiptId_ends_with: String
+  receiptId_not_starts_with: String
+  receiptId_not_ends_with: String
+  ts: BigInt
+  ts_not: BigInt
+  ts_in: [BigInt]
+  ts_not_in: [BigInt]
+  ts_gt: BigInt
+  ts_lt: BigInt
+  ts_gte: BigInt
+  ts_lte: BigInt
+  blockNumber: BigInt
+  blockNumber_not: BigInt
+  blockNumber_in: [BigInt]
+  blockNumber_not_in: [BigInt]
+  blockNumber_gt: BigInt
+  blockNumber_lt: BigInt
+  blockNumber_gte: BigInt
+  blockNumber_lte: BigInt
+  timestamp: Int
+  timestamp_not: Int
+  timestamp_in: [Int]
+  timestamp_not_in: [Int]
+  timestamp_gt: Int
+  timestamp_lt: Int
+  timestamp_gte: Int
+  timestamp_lte: Int
+  txHash: String
+  txHash_not: String
+  txHash_in: [String]
+  txHash_not_in: [String]
+  txHash_contains: String
+  txHash_not_contains: String
+  txHash_starts_with: String
+  txHash_ends_with: String
+  txHash_not_starts_with: String
+  txHash_not_ends_with: String
+}
+
+type verification {
+  id: String!
+  recipient: String!
+  uid: String!
+  attester: String!
+  blockNumber: BigInt!
+  timestamp: Int!
+}
+
+type verificationPage {
+  items: [verification!]!
+  pageInfo: PageInfo!
+  totalCount: Int!
+}
+
+input verificationFilter {
+  AND: [verificationFilter]
+  OR: [verificationFilter]
+  id: String
+  id_not: String
+  id_in: [String]
+  id_not_in: [String]
+  id_contains: String
+  id_not_contains: String
+  id_starts_with: String
+  id_ends_with: String
+  id_not_starts_with: String
+  id_not_ends_with: String
+  id_contains_nocase: String
+  id_not_contains_nocase: String
+  id_starts_with_nocase: String
+  id_ends_with_nocase: String
+  id_not_starts_with_nocase: String
+  id_not_ends_with_nocase: String
+  recipient: String
+  recipient_not: String
+  recipient_in: [String]
+  recipient_not_in: [String]
+  recipient_contains: String
+  recipient_not_contains: String
+  recipient_starts_with: String
+  recipient_ends_with: String
+  recipient_not_starts_with: String
+  recipient_not_ends_with: String
+  uid: String
+  uid_not: String
+  uid_in: [String]
+  uid_not_in: [String]
+  uid_contains: String
+  uid_not_contains: String
+  uid_starts_with: String
+  uid_ends_with: String
+  uid_not_starts_with: String
+  uid_not_ends_with: String
+  attester: String
+  attester_not: String
+  attester_in: [String]
+  attester_not_in: [String]
+  attester_contains: String
+  attester_not_contains: String
+  attester_starts_with: String
+  attester_ends_with: String
+  attester_not_starts_with: String
+  attester_not_ends_with: String
+  blockNumber: BigInt
+  blockNumber_not: BigInt
+  blockNumber_in: [BigInt]
+  blockNumber_not_in: [BigInt]
+  blockNumber_gt: BigInt
+  blockNumber_lt: BigInt
+  blockNumber_gte: BigInt
+  blockNumber_lte: BigInt
+  timestamp: Int
+  timestamp_not: Int
+  timestamp_in: [Int]
+  timestamp_not_in: [Int]
+  timestamp_gt: Int
+  timestamp_lt: Int
+  timestamp_gte: Int
+  timestamp_lte: Int
 }
 
 type decoded {
@@ -583,6 +804,95 @@ input rosterChangeFilter {
   promoted_not: Boolean
   promoted_in: [Boolean]
   promoted_not_in: [Boolean]
+  blockNumber: BigInt
+  blockNumber_not: BigInt
+  blockNumber_in: [BigInt]
+  blockNumber_not_in: [BigInt]
+  blockNumber_gt: BigInt
+  blockNumber_lt: BigInt
+  blockNumber_gte: BigInt
+  blockNumber_lte: BigInt
+  timestamp: Int
+  timestamp_not: Int
+  timestamp_in: [Int]
+  timestamp_not_in: [Int]
+  timestamp_gt: Int
+  timestamp_lt: Int
+  timestamp_gte: Int
+  timestamp_lte: Int
+  txHash: String
+  txHash_not: String
+  txHash_in: [String]
+  txHash_not_in: [String]
+  txHash_contains: String
+  txHash_not_contains: String
+  txHash_starts_with: String
+  txHash_ends_with: String
+  txHash_not_starts_with: String
+  txHash_not_ends_with: String
+}
+
+type yieldReward {
+  id: String!
+  from: String!
+  amount: BigInt!
+  rewardPerTokenAcc: BigInt!
+  blockNumber: BigInt!
+  timestamp: Int!
+  txHash: String!
+}
+
+type yieldRewardPage {
+  items: [yieldReward!]!
+  pageInfo: PageInfo!
+  totalCount: Int!
+}
+
+input yieldRewardFilter {
+  AND: [yieldRewardFilter]
+  OR: [yieldRewardFilter]
+  id: String
+  id_not: String
+  id_in: [String]
+  id_not_in: [String]
+  id_contains: String
+  id_not_contains: String
+  id_starts_with: String
+  id_ends_with: String
+  id_not_starts_with: String
+  id_not_ends_with: String
+  id_contains_nocase: String
+  id_not_contains_nocase: String
+  id_starts_with_nocase: String
+  id_ends_with_nocase: String
+  id_not_starts_with_nocase: String
+  id_not_ends_with_nocase: String
+  from: String
+  from_not: String
+  from_in: [String]
+  from_not_in: [String]
+  from_contains: String
+  from_not_contains: String
+  from_starts_with: String
+  from_ends_with: String
+  from_not_starts_with: String
+  from_not_ends_with: String
+  amount: BigInt
+  amount_not: BigInt
+  amount_in: [BigInt]
+  amount_not_in: [BigInt]
+  amount_gt: BigInt
+  amount_lt: BigInt
+  amount_gte: BigInt
+  amount_lte: BigInt
+  rewardPerTokenAcc: BigInt
+  rewardPerTokenAcc_not: BigInt
+  rewardPerTokenAcc_in: [BigInt]
+  rewardPerTokenAcc_not_in: [BigInt]
+  rewardPerTokenAcc_gt: BigInt
+  rewardPerTokenAcc_lt: BigInt
+  rewardPerTokenAcc_gte: BigInt
+  rewardPerTokenAcc_lte: BigInt
   blockNumber: BigInt
   blockNumber_not: BigInt
   blockNumber_in: [BigInt]
