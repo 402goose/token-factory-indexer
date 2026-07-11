@@ -105,9 +105,19 @@ const VERIFIED_ACCOUNT_SCHEMA = optEnv(
 
 // Start block: required on Robinhood (set to the launch-day deploy block);
 // optional override on Base Sepolia (defaults below match the live stack).
-const START = process.env.PONDER_START_BLOCK
-  ? Number(process.env.PONDER_START_BLOCK)
-  : undefined;
+// Fail fast on non-integer values — Number("garbage") is NaN, which would
+// otherwise slip through and produce a nonsense startBlock.
+const START = (() => {
+  const raw = process.env.PONDER_START_BLOCK;
+  if (!raw) return undefined;
+  const n = Number(raw);
+  if (!Number.isInteger(n) || n < 0) {
+    throw new Error(
+      `PONDER_START_BLOCK=${raw} is not a non-negative integer block number.`,
+    );
+  }
+  return n;
+})();
 if (IS_ROBINHOOD && START === undefined) {
   throw new Error(
     `${CHAIN_NAME}: missing required env PONDER_START_BLOCK — set it to the launch-day deploy block (Robinhood blocks are ~0.1s, so an unbounded backfill from genesis is not an option).`,
