@@ -85,7 +85,9 @@ const YIELD_VAULT_ADDRESS = env("TF_YIELD_VAULT_ADDRESS", "0x20BF7c0B977b117e6a5
 
 // EAS: on Base Sepolia it's the OP-stack predeploy; on Robinhood there is no
 // predeploy — we self-deploy EAS v1.4.0 at launch, so the address comes from env.
-const EAS_ADDRESS = env("TF_EAS_ADDRESS", "0x4200000000000000000000000000000000000021");
+// Exported so src/index.ts reads getAttestation from the SAME resolved address
+// (single source of truth — never re-derive this in handlers).
+export const EAS_ADDRESS = env("TF_EAS_ADDRESS", "0x4200000000000000000000000000000000000021");
 
 // EAS schema UIDs — we index attestations on these two only. UIDs are
 // keccak(schema, resolver, revocable), so re-registering the identical schema on

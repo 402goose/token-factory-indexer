@@ -3,6 +3,7 @@
 import { ponder } from "ponder:registry";
 import { decodeAbiParameters } from "viem";
 import { EasAbi } from "../abis/EAS.js";
+import { EAS_ADDRESS } from "../ponder.config.js";
 import {
   attestation,
   verification,
@@ -18,15 +19,15 @@ import {
 const rowId = (event: { transaction: { hash: string }; log: { logIndex: number } }) =>
   `${event.transaction.hash}:${event.log.logIndex}`;
 
-const EAS_PREDEPLOY = "0x4200000000000000000000000000000000000021" as const;
-
 // EAS Attested (ai-infer-v1 schema only — filtered in ponder.config). The event
 // carries just the UID; read getAttestation to recover the encoded payload.
+// EAS_ADDRESS comes from ponder.config so the handler always reads the same
+// contract the config indexes (env-configurable — no predeploy on Robinhood).
 ponder.on("EAS:Attested", async ({ event, context }) => {
   const uid = event.args.uid;
   const att = await context.client.readContract({
     abi: EasAbi,
-    address: EAS_PREDEPLOY,
+    address: EAS_ADDRESS,
     functionName: "getAttestation",
     args: [uid],
   });
